@@ -1,5 +1,6 @@
 package org.example
 
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -35,6 +36,7 @@ import kotlin.time.Duration.Companion.seconds
  * allowing access to each emission as received. Alternatively, the launch in function can launch a flow
  * within a coroutine scope, acting like collect but without a collect block.
  */
+@OptIn(DelicateCoroutinesApi::class)
 fun main(): Unit  = runBlocking {
     GlobalScope.launch {
         flow<Int> { // -> Value source

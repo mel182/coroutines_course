@@ -1,5 +1,6 @@
 package org.example
 
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -8,6 +9,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * A shared flow (hot flow) is created with the mutable shared flow class,
@@ -31,6 +34,7 @@ import kotlinx.coroutines.runBlocking
  * ensuring synchronized data without duplicate callbacks.
  *
  */
+@OptIn(DelicateCoroutinesApi::class)
 fun main(): Unit  = runBlocking {
 
     val sharedFlow = MutableSharedFlow<Int>(
@@ -42,7 +46,7 @@ fun main(): Unit  = runBlocking {
     GlobalScope.launch {
         sharedFlow.onEach {
             println("Collector 1: $it")
-            delay(5000L)
+            delay(5.seconds)
         }.launchIn(GlobalScope)
 
         sharedFlow.onEach {
@@ -52,7 +56,7 @@ fun main(): Unit  = runBlocking {
 
     GlobalScope.launch {
         repeat(10) {
-            delay(500L)
+            delay(500.milliseconds)
             sharedFlow.emit(it)
         }
     }.join() // Note: In Android you don't have to use 'join()'

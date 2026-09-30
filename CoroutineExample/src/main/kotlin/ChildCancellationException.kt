@@ -1,7 +1,6 @@
 package org.example
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.time.delay
 import kotlin.time.Duration.Companion.seconds
 
 fun main(): Unit = runBlocking {

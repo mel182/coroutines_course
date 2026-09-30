@@ -5,6 +5,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.system.measureTimeMillis
 
+@OptIn(ExperimentalStdlibApi::class)
 fun main(): Unit = runBlocking {
 
     val handler2 = CoroutineExceptionHandler { coroutineContext, exception ->

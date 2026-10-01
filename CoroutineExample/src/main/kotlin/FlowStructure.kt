@@ -38,18 +38,16 @@ import kotlin.time.Duration.Companion.seconds
  */
 @OptIn(DelicateCoroutinesApi::class)
 fun main(): Unit  = runBlocking {
-    GlobalScope.launch {
-        flow<Int> { // -> Value source
-            delay(1.seconds)
-            emit(1)
-            delay(2.seconds)
-            emit(2)
-            delay(3.seconds)
-            emit(3)
-        }.collect { // -> Terminal operator
-            println("Example 1 emit: $it")
-        }
-    }.join() // Note: In Android you don't have to use join()
+    flow<Int> { // -> Value source
+        delay(1.seconds)
+        emit(1)
+        delay(2.seconds)
+        emit(2)
+        delay(3.seconds)
+        emit(3)
+    }.collect { // -> Terminal operator
+        println("Example 1 emit: $it")
+    }
 
     // With intermediate operator
     flow<Int> { // -> Value source

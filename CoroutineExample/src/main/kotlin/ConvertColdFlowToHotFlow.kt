@@ -2,8 +2,14 @@ package org.example
 
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.time.Duration.Companion.seconds
@@ -31,17 +37,36 @@ import kotlin.time.Duration.Companion.seconds
 @OptIn(DelicateCoroutinesApi::class)
 fun main(): Unit = runBlocking {
 
-    GlobalScope.launch {
-        flow<Int> { // -> Value source
-            delay(1.seconds)
-            emit(1)
-            delay(2.seconds)
-            emit(2)
-            delay(3.seconds)
-            emit(3)
-        }.collect { // -> Terminal operator
-            println("Example 1 emit: $it")
-        }
-    }.join() // Note: In Android you don't have to use join()
+    val flow = flow<Int> { // -> Value source
+        delay(1.seconds)
+        emit(1)
+        delay(2.seconds)
+        emit(2)
+        delay(3.seconds)
+        emit(3)
+    }.stateIn(
+        this,
+        // SharingStarted.Eagerly -> Sharing is started immediately and never stops.
+        // SharingStarted.Lazily -> Sharing is started when the first subscriber appears and never stops
+        // SharingStarted.WhileSubscribed -> Sharing is started when the first subscriber appears, immediately stops when the last subscriber disappears (by default), keeping the replay cache forever (by default).
+        SharingStarted.Lazily,
+        0
+    )
 
+    val job = flow.onEach {
+        println("Collector 1 $it")
+    }.launchIn(this)
+
+    val job2 = launch {
+        delay(5.seconds)
+        flow.onEach {
+            println("Collector 2 $it")
+        }.launchIn(this)
+    }
+
+    flow.first { it == 3 }
+    delay(1.seconds)
+    job.cancel()
+    job2.cancel()
+    coroutineContext.cancelChildren()
 }
